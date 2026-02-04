@@ -6,7 +6,7 @@ PIPELINE_FORECASTS = {
         "project_completion", "date", "created_at"
     ],
     "relations": {
-        "customer": {
+        "customers": {
             "table": "customers",
             "on": "pipeline_forecasts.customer_id = customers.id",
             "columns": [
@@ -14,7 +14,6 @@ PIPELINE_FORECASTS = {
                 "name",
                 "email",
                 "phone_number",
-                "company_id",
                 "status"
             ]
         }

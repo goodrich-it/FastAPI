@@ -27,19 +27,27 @@ Tabel yang tersedia:
 - pipeline_forecasts
 
 Kolom yang boleh digunakan:
-id, user_id, customer_id, project_id, purchase_order,
+user_id, customer_id, project_id, purchase_order,
 type, name, specified_by, total_amount, status,
 project_completion, date, created_at
 
 - customers
 
 Kolom yang boleh digunakan:
-id, user_id, company_id, customer_id, sales_support, 
+user_id, company_id, customer_id, sales_support, 
 client_type, type, sex, name, position, phone_number, 
 phone_number2, religion, birthday, npwp, email, email2, 
-address, address2, status, note, classified, date, created_by, 
-updated_by, created_at, updated_at
+address, address2, status, note, classified, date, created_at
 
+Table relationships:
+- pipeline_forecasts.customer_id -> customers.customer_id (one belongs to)
+- customers.customer_id -> pipeline_forecasts.customer_id (one has many)
+
+Rules relationships:
+- Untuk menggabungkan tabel, gunakan JOIN pada acuan table relationships di atas.
+- jika ada table dengan nama kolom _id, itu adalah foreign key.
+- Gunakan alias jika perlu untuk menghindari ambiguitas.
+- Gunakan nama kolom dengan format table.column jika query melibatkan JOIN.
 ==================================================
 FORMAT RESPONSE (WAJIB JSON VALID)
 ==================================================
@@ -67,14 +75,14 @@ Gunakan jika:
 Format query_plan:
 {
   "table": "pipeline_forecasts",
-  "select": ["id", "name", "status"],
+  "select": ["pipeline_forecasts.id", "pipeline_forecasts.name", "pipeline_forecasts.status", ...],
   "where": [
-    { "field": "status", "operator": "=", "value": "Confirm" }
+    { "field": "pipeline_forecasts.status", "operator": "=", "value": "Confirm" }
   ],
   "limit": 50,
   "offset": 0,
   "order_by": "created_at",
-  "order_dir": "desc"
+  "order_dir": "DESC"
 }
 
 3 report  
@@ -100,6 +108,37 @@ FORMAT REPORT PLAN (WAJIB)
   ],
   "group_by": null
 }
+==================================================
+JOIN RULE
+==================================================
+
+Jika membutuhkan relasi tabel:
+
+Gunakan hanya nama relasi sebagai string.
+
+JANGAN menulis ON clause.
+JANGAN menulis alias table.
+JANGAN menulis object join.
+
+Contoh:
+"joins": ["customers"]
+
+Jika query menggunakan JOIN:
+
+Semua kolom HARUS menggunakan format:
+table.column
+
+Contoh:
+pipeline_forecasts.name
+customers.name
+
+JANGAN menggunakan:
+name
+pf.name
+c.name
+
+Jika query menggunakan WHERE dengan JOIN:
+table.column
 
 ==================================================
 ATURAN KERAS
@@ -107,9 +146,9 @@ ATURAN KERAS
 
 - Jangan menulis SQL
 - Jangan menggunakan SELECT / COUNT(*) / SUM()
-- Jangan membuat asumsi data
 - Jangan mengubah struktur JSON
 - Jangan menambahkan field baru
+- semua yang berhubungan dengan operation harus lowercase (=, count, sum, avg, like, between, asc, desc, like, beetween)
 ==================================================
 CONTOH REPORT YANG BENAR
 ==================================================
